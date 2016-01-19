@@ -25,7 +25,9 @@ class BillDataProcessor:
         self.year = int(year)
         self.statistics = {}
         self.trans = set() # used to avoid duplicated transactions
-        self.categories = categoryTree.CategoryTree()
+        self.spending = categoryTree.CategoryTree()
+        self.income = categoryTree.CategoryTree()
+
 
 
     def processData(self, files):
@@ -47,13 +49,16 @@ class BillDataProcessor:
 
     def printStatistics(self):
 
-        self.categories.printTree()
+        print " ========== Spending: ========== "
+        self.spending.printTree()
+
+        print " ========== Payment and refund: ========== "
+        self.income.printTree()
 
         for key, value in self.statistics.iteritems():
             if(key != "Total Expense" and key != "Total Payment" and value > 0):
                 print key, ":\t", value
 
-        print "Total Payment :\t", self.statistics['Total Payment']
 
 
     def __getStatisticsFromData(self):
@@ -63,26 +68,31 @@ class BillDataProcessor:
 
         unprocessedDesc = []
         for date, amount, desc in self.transData:
-            if(amount < 0):
-                processedDesc = False
-                for keyword, categoryPath in self.categories.keywordCategoryMapping.iteritems():
-                    if(re.search(keyword, desc, re.IGNORECASE)):
-                        self.categories.addTransaction(categoryPath, -amount) # amount is negative, convert it to positive number
+            processedDesc = False
+            for keyword, categoryPath in self.spending.keywordCategoryMapping.iteritems():
+                if(re.search(keyword, desc, re.IGNORECASE)):
+                    if(amount < 0):
+                        self.spending.addTransaction(categoryPath, -amount) # amount is negative, convert it to positive number
                         processedDesc = True
                         break;
-                if(processedDesc is False):
-                    unprocessedDesc.append((date, amount, desc))
-                    self.categories.addTransaction("Other", -amount)
+                    else:
+                        self.income.addTransaction(categoryPath, amount)
+                        processedDesc = True
+                        break;
+            if(processedDesc is False):
+                unprocessedDesc.append((date, amount, desc))
+                if(amount < 0):
+                    self.spending.addTransaction("Other", -amount)
+                else:
+                    self.income.addTransaction("Other", amount)
 
-            else:
-                totalPayment += amount
 
         if(len(unprocessedDesc) > 0):
             print "Not classified transactions:"
             for date, amount, desc in unprocessedDesc:
                 print date, ": ", amount , "\t", desc
 
-        statistics['Total Payment'] = totalPayment
+        # statistics['Total Payment'] = totalPayment
 
         return statistics
 

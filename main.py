@@ -30,10 +30,10 @@ def visualize(flag):
 @click.option('-y','--year',type=click.IntRange(2000, 3000),
                 help='Year of interest')
 @click.option('-v','--visualization',type=click.BOOL, default=0, help='Visualize result')
-def processDataOnMonth(month, year, visualization):
+def processDataOnMonthAndYear(month, year, visualization):
     print "Month of interst:", month, "/", year
     loadData(month, year, visualization)
 
 
 if __name__ == '__main__':
-    processDataOnMonth()
+    processDataOnMonthAndYear()
