@@ -37,7 +37,7 @@ ppg pof,Transportation/Parking
 Target,Supermarket
 MKT,Supermarket
 Fred-meyer,Supermarket
-eagle,Clothes
+eagle,Shopping/Clothes
 amc,Entertainment/Movie
 Tapioca,Restaurant
 Leavenworth,Travel
@@ -57,4 +57,11 @@ LITTLE THAI,Restaurant
 ROCKING WOK,Restaurant
 MOUNT RAINIER,Travel
 VISITOR CENTER,Travel
-SQ *THAN BROTHERS UW,Restaurant
+THAN BROTHERS UW,Restaurant
+Thank you,Payment
+SWAROVSKI,Shopping
+WIKIMEDIA,Donation
+UW COMMUTER SVCS PAY STAT,Transportation/Parking
+CARTER MOTORSUBARU,Car/Maintainance
+BURGER AND KABOB HUT,Restaurant
+THE GREAT WHEEL COM,Travel
