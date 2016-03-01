@@ -1,11 +1,13 @@
 #!/usr/bin/python
-import csv,re
+import csv
+import re
 
 # Update the tree of category with input keyword and category list
 # Input:
 #       node: original category tree node
 #       keyword: the keyword to be added
-#       categoryList: category list in the format of [category1, sub-category, sub-sub-category, ...]
+#       categoryList: category list in the format of [category1,
+#                   sub-category, sub-sub-category, ...]
 # Output:
 #       node: updated category node
 def updateCategoryTree(node, keyword, categoryList):
@@ -13,7 +15,8 @@ def updateCategoryTree(node, keyword, categoryList):
     if(len(categoryList) == 0):
         node.addKeyword(keyword)
     else:
-        updatedNode = updateCategoryTree(node.getChild(categoryList[0]), keyword, categoryList[1:])
+        updatedNode = updateCategoryTree(node.getChild(
+                        categoryList[0]), keyword, categoryList[1:])
         node.updateChild(updatedNode)
 
     return node
@@ -31,24 +34,21 @@ def getNodeOnPath(node, categoryList):
         return getNodeOnPath(node.getChild(categoryList[0]), categoryList[1:])
 
 
-
-
-
 class CategoryTree:
     def __init__(self, file="categories.csv"):
-        self.root = TreeNode("Total") # default category is "total"
+        self.root = TreeNode("Total")  # default category is "total"
         self.keywordCategoryMapping = {}
         self.root.addChildCategory(TreeNode("Other"))
-        print "load category data"
+        #print "load category data"
         with open(file, 'r') as csvFile:
-            data = csv.DictReader(csvFile, delimiter = ',')
+            data = csv.DictReader(csvFile, delimiter=',')
 
             for row in data:
                 keyword = row['Keyword']
                 if(keyword not in self.keywordCategoryMapping.keys()):
 
                     categoryPath = row['Category']
-                    self.keywordCategoryMapping[keyword] = categoryPath # avoid duplication
+                    self.keywordCategoryMapping[keyword] = categoryPath  # avoid duplication
                     categories = re.findall("[^/]+", categoryPath)
                     self.root = updateCategoryTree(self.root, keyword, categories)
                 else:
@@ -58,7 +58,6 @@ class CategoryTree:
     def addTransaction(self, categoryPath, expense):
         categoryList = re.findall("[^/]+", categoryPath)
         self.__addTransactionHelper(self.root, categoryList, expense)
-
 
 
     def printTree(self):
@@ -83,8 +82,8 @@ class TreeNode:
         self.parentCategory = None
         self.childCategories = {}
         self.keywords = set()
-        self.depth = 0 # record the depth to root
-        self.totalCost = 0 # record the statistics
+        self.depth = 0  # record the depth to root
+        self.totalCost = 0  # record the statistics
 
     def addParent(self, parentCategoryNode):
         self.parentCategory = parentCategoryNode

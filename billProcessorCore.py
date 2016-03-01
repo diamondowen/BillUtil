@@ -9,7 +9,7 @@ def getMonthAndYearFromDate(date):
     date = re.findall('[0-9]+', date)
     month = int(date[0])
     year = int(date[2])
-    if(year < 2000): # for year in short (e.g., 15), convert it to full length (e.g., 2015)
+    if(year < 2000):  # for year in short (e.g., 15), convert it to full length (e.g., 2015)
         year += 2000
     return month, year
 
@@ -24,7 +24,7 @@ class BillDataProcessor:
         self.month = int(month)
         self.year = int(year)
         self.statistics = {}
-        self.trans = set() # used to avoid duplicated transactions
+        self.trans = set()  # used to avoid duplicated transactions
         self.spending = categoryTree.CategoryTree()
         self.income = categoryTree.CategoryTree()
 
@@ -104,7 +104,7 @@ class BillDataProcessor:
             data = csv.DictReader(csvFile, delimiter = ',')
             for row in data:
                 month, year = getMonthAndYearFromDate(row['Posted Date'])
-                print month, self.month, year, self.year
+                # print month, self.month, year, self.year
                 if(month == self.month and year == self.year and str(row) not in self.trans):
                     self.trans.add(str(row))
                     self.transData.append((row['Posted Date'], float(row['Amount']), row['Payee']))
@@ -124,8 +124,8 @@ class BillDataProcessor:
 
     def __processAmexData(self, file):
         print "Process Amex data:", file
-        with open (file, 'r') as csvFile:
-            data = csv.reader(csvFile, delimiter = ',')
+        with open(file, 'r') as csvFile:
+            data = csv.reader(csvFile, delimiter=',')
             for row in data:
                 # print row
                 if(len(row) > 4):

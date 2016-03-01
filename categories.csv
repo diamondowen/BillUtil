@@ -34,9 +34,9 @@ Starbucks,Coffee
 AAA,Membership
 Geico,Membership
 ppg pof,Transportation/Parking
-Target,Supermarket
-MKT,Supermarket
-Fred-meyer,Supermarket
+Target,Supermarket/Target
+MKT,Supermarket/MKT
+Fred-meyer,Supermarket/Fred-meyer
 eagle,Shopping/Clothes
 amc,Entertainment/Movie
 Tapioca,Restaurant
@@ -48,9 +48,9 @@ Little Sheep,Restaurant
 Little China,Restaurant
 SEAFOO,Restaurant
 Yu Shan,Restaurant
-Daiso,Supermarket
+Daiso,Supermarket/Daiso
 COSTCO GAS,Transportation/Gas
-COURSERA,Education
+COURSERA,Education/Coursera
 KUKAI RAMEN,Restaurant
 UW GATEHOUSE,Transportation/Parking
 LITTLE THAI,Restaurant
@@ -65,3 +65,15 @@ UW COMMUTER SVCS PAY STAT,Transportation/Parking
 CARTER MOTORSUBARU,Car/Maintainance
 BURGER AND KABOB HUT,Restaurant
 THE GREAT WHEEL COM,Travel
+BARTELL,Supermarket/Bartell
+SPORTS AUTHORITY,Supermarket/Sports Authority
+UW RECREATIONAL SPORTS PR,Entertainment/Sports
+MACAU DOULAO,Restaurant
+CENTURY THEATRES,Entertainment/Movie
+HIGHLAND ICE,Entertainment/Sports
+QIN,Restaurant
+BCD TOFU,Restaurant
+RED ROBIN,Restaurant
+ABEBOOKS,Education/Books
+COFFEE,Coffee
+7-ELEVEN,Transportation/Gas
