@@ -1,9 +1,10 @@
 Keyword,Category
-COSTCO WHSE,Grocery/Non-Chinese
-99 Ranch,Grocery/Chinese
-Safeway,Grocery/Non-Chinese
-QFC,Grocery/Non-Chinese
-Asian Food Center,Grocery/Chinese
+COSTCO WHSE,Grocery/Non-Chinese/Costco
+99 Ranch,Grocery/Chinese/99 Ranch
+Safeway,Grocery/Non-Chinese/Safeway
+QFC,Grocery/Non-Chinese/QFC
+Asian Food Cntr,Grocery/Chinese/Asian Food Center
+Asian Food Center,Grocery/Chinese/Asian Food Center
 Shell,Transportation/Gas
 Arco,Transportation/Gas
 Good2go,Transportation/Turnpike
@@ -31,8 +32,8 @@ buffet,Restaurant
 CITY LIGHT,Utility
 AMAZON,Amazon
 Starbucks,Coffee
-AAA,Membership
-Geico,Membership
+AAA,Membership/AAA
+Geico,Membership/Geico
 ppg pof,Transportation/Parking
 Target,Supermarket/Target
 MKT,Supermarket/MKT
@@ -77,3 +78,8 @@ RED ROBIN,Restaurant
 ABEBOOKS,Education/Books
 COFFEE,Coffee
 7-ELEVEN,Transportation/Gas
+CHIPOTLE,Restaurant
+GRILL,Restaurant
+Dropbox,Membership/Dropbox
+Rite Aid,Supermarket/Rite Aid
+Regal,Entertainment/Movie
