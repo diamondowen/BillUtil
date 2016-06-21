@@ -18,11 +18,12 @@ class BillDataProcessor:
     # Description here
 
     # Month is an integer in the range of [1, 12]
-    def __init__(self, month, year):
+    def __init__(self, month, year, spendingHighlightTh):
         self.transData = []
         self.errMessage = ""
         self.month = int(month)
         self.year = int(year)
+        self.spendingHighlightTh = int(spendingHighlightTh)
         self.statistics = {}
         self.trans = set()  # used to avoid duplicated transactions
         self.spending = categoryTree.CategoryTree()
@@ -72,7 +73,10 @@ class BillDataProcessor:
             for keyword, categoryPath in self.spending.keywordCategoryMapping.iteritems():
                 if(re.search(keyword, desc, re.IGNORECASE)):
                     if(amount < 0):
-                        self.spending.addTransaction(categoryPath, -amount) # amount is negative, convert it to positive number
+                        if(amount < -self.spendingHighlightTh):
+                            self.spending.addTransaction(categoryPath + "/" + desc, -amount)
+                        else:
+                            self.spending.addTransaction(categoryPath, -amount) # amount is negative, convert it to positive number
                         processedDesc = True
                         break;
                     else:
