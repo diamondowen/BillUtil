@@ -2,6 +2,7 @@
 from abc import ABCMeta, abstractmethod
 import csv, re
 import categoryTree
+import sqlite3
 
 # Get the month from the date string in month/date/year format
 def getMonthAndYearFromDate(date):
@@ -28,10 +29,16 @@ class BillDataProcessor:
         self.trans = set()  # used to avoid duplicated transactions
         self.spending = categoryTree.CategoryTree()
         self.income = categoryTree.CategoryTree()
-
+        self.sqlite_file = 'transactions_db.sqlite'
+        self.trans_table_name = 'transactions'
 
 
     def processData(self, files):
+        conn = sqlite3.connect(self.sqlite_file)
+        c = conn.cursor()
+        sql = 'create table if not exists ' + self.trans_table_name + ' (date text, amount real, description text)'
+        c.execute(sql)
+
         for file in files:
             if "Chase" in file:
                 self.__processChaseData(file)
@@ -48,6 +55,11 @@ class BillDataProcessor:
         if(len(self.errMessage) > 0):
             print self.errMessage
 
+        self.__saveDataToDB(c, self.transData)
+
+        conn.commit()
+        conn.close()
+
     def printStatistics(self):
 
         print " ========== Spending: ========== "
@@ -60,6 +72,20 @@ class BillDataProcessor:
             if(key != "Total Expense" and key != "Total Payment" and value > 0):
                 print key, ":\t", value
 
+    def __formatDate(self, date):
+        dateStrList = re.findall('[0-9]+', date)
+        month = dateStrList[0]
+        date = dateStrList[1]
+        year = dateStrList[2]
+        return '"' + year+"-"+month+"-"+date + '"'
+
+
+    def __saveDataToDB(self, c, transData):
+        for date, amount, desc in transData:
+            dateStr = self.__formatDate(date)
+            print dateStr
+            c.execute("""insert into {table} (date, amount, description) values ({dateValue}, {amountValue}, "{descValue}")""".\
+            format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc))
 
 
     def __getStatisticsFromData(self):
