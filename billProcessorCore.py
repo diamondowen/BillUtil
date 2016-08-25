@@ -83,7 +83,6 @@ class BillDataProcessor:
     def __saveDataToDB(self, c, transData):
         for date, amount, desc in transData:
             dateStr = self.__formatDate(date)
-            print dateStr
             c.execute("""insert into {table} (date, amount, description) values ({dateValue}, {amountValue}, "{descValue}")""".\
             format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc))
 
