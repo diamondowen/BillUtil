@@ -63,7 +63,7 @@ class BillDataProcessor:
     def printStatistics(self):
 
         print " ========== Spending: ========== "
-        self.spending.printTree()
+        self.spending.printTree(self.spendingHighlightTh)
 
         print " ========== Payment and refund: ========== "
         self.income.printTree()
@@ -83,8 +83,12 @@ class BillDataProcessor:
     def __saveDataToDB(self, c, transData):
         for date, amount, desc in transData:
             dateStr = self.__formatDate(date)
-            c.execute("""insert into {table} (date, amount, description) values ({dateValue}, {amountValue}, "{descValue}")""".\
+            data = c.execute('SELECT * FROM {table} WHERE date = {dateValue} AND amount = {amountValue} AND description = "{descValue}"'.\
             format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc))
+
+            if(data.fetchone() is None):
+                c.execute("""insert into {table} (date, amount, description) values ({dateValue}, {amountValue}, "{descValue}")""".\
+                format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc))
 
 
     def __getStatisticsFromData(self):
@@ -98,22 +102,19 @@ class BillDataProcessor:
             for keyword, categoryPath in self.spending.keywordCategoryMapping.iteritems():
                 if(re.search(keyword, desc, re.IGNORECASE)):
                     if(amount < 0):
-                        if(amount < -self.spendingHighlightTh):
-                            self.spending.addTransaction(categoryPath + "/" + desc, -amount)
-                        else:
-                            self.spending.addTransaction(categoryPath, -amount) # amount is negative, convert it to positive number
+                        self.spending.addTransaction(categoryPath, -amount, date, desc) # amount is negative, convert it to positive number
                         processedDesc = True
                         break;
                     else:
-                        self.income.addTransaction(categoryPath, amount)
+                        self.income.addTransaction(categoryPath, amount, date, desc)
                         processedDesc = True
                         break;
             if(processedDesc is False):
                 unprocessedDesc.append((date, amount, desc))
                 if(amount < 0):
-                    self.spending.addTransaction("Other", -amount)
+                    self.spending.addTransaction("Other", -amount, date, desc)
                 else:
-                    self.income.addTransaction("Other", amount)
+                    self.income.addTransaction("Other", amount, date, desc)
 
 
         if(len(unprocessedDesc) > 0):

@@ -8,27 +8,27 @@ Asian Food Center,Grocery/Chinese/Asian Food Center
 Shell,Transportation/Gas
 Arco,Transportation/Gas
 Good2go,Transportation/Turnpike
-park,Transportation/Parking
+684-PARK,Transportation/Parking
 Union 76,Transportation/Gas
-Boiling,Restaurant
-MEE SUM,Restaurant
-PHO,Restaurant
-U Don,Restaurant
-KFC,Restaurant
-RESTAURANT,Restaurant
-MCDONALD,Restaurant
-FRYING,Restaurant
-TOFU HOUSE,Restaurant
-CAFE,Restaurant
-Yummy Bite,Restaurant
-Sushi,Restaurant
-Noodle,Restaurant
+ANDIAMO,Restaurant
+AUNTIE ANNES,Restaurant
+BCD TOFU,Restaurant
 Biang,Restaurant
-University Kitchen,Restaurant
-UW Food,Restaurant
-Shanghai shanghai,Restaurant
-haagen-dazs,Restaurant
+Big 5,Restaurant
+Boiling,Restaurant
 buffet,Restaurant
+BURGER AND KABOB HUT,Restaurant
+CAFE,Restaurant
+CHIANGS GOURMET,Restaurant
+CHIPOTLE,Restaurant
+CRAWFISH KING,Restaurant
+DIM SUM FACTORY,Restaurant
+DIN TAI FUNG RESTA,Restaurant
+FIVE GUYS,Restaurant
+FRYING,Restaurant
+GREEN HOUSE,Restaurant
+GRILL,Restaurant
+haagen-dazs,Restaurant
 CITY LIGHT,Utility
 AMAZON,Amazon
 Starbucks,Coffee
@@ -40,69 +40,98 @@ MKT,Supermarket/MKT
 Fred-meyer,Supermarket/Fred-meyer
 eagle,Shopping/Clothes
 amc,Entertainment/Movie
-Tapioca,Restaurant
+HONG KONG BISTRO INC,Restaurant
 Leavenworth,Travel
-Big 5,Restaurant
+INTERNATIONAL LUCKY,Restaurant
 IKEA,Furniture
 GNC,Supermarket
-Little Sheep,Restaurant
+KFC,Restaurant
+KUKAI RAMEN,Restaurant
 Little China,Restaurant
-SEAFOO,Restaurant
-Yu Shan,Restaurant
+Little Sheep,Restaurant
 Daiso,Supermarket/Daiso
 COSTCO GAS,Transportation/Gas
 COURSERA,Education/Coursera
-KUKAI RAMEN,Restaurant
-UW GATEHOUSE,Transportation/Parking
 LITTLE THAI,Restaurant
-ROCKING WOK,Restaurant
+UW GATEHOUSE,Transportation/Parking
+LITTLE TOKYO,Restaurant
+MACAU DOULAO,Restaurant
 MOUNT RAINIER,Travel
 VISITOR CENTER,Travel
-THAN BROTHERS UW,Restaurant
+MASTER CHEF,Restaurant
 Thank you,Payment
 SWAROVSKI,Shopping
 WIKIMEDIA,Donation
 UW COMMUTER SVCS PAY STAT,Transportation/Parking
 CARTER MOTORSUBARU,Car/Maintainance
-BURGER AND KABOB HUT,Restaurant
+MCDONALD,Restaurant
 THE GREAT WHEEL COM,Travel
 BARTELL,Supermarket/Bartell
 SPORTS AUTHORITY,Supermarket/Sports Authority
 UW RECREATIONAL SPORTS PR,Entertainment/Sports
-MACAU DOULAO,Restaurant
+MEE SUM,Restaurant
 CENTURY THEATRES,Entertainment/Movie
 HIGHLAND ICE,Entertainment/Sports
-QIN,Restaurant
-BCD TOFU,Restaurant
-RED ROBIN,Restaurant
+MUNCHEN HAUS,Restaurant
+Noodle,Restaurant
+PAGLIACCI PIZZA SAND POIN,Restaurant
 ABEBOOKS,Education/Books
 COFFEE,Coffee
 7-ELEVEN,Transportation/Gas
-CHIPOTLE,Restaurant
-GRILL,Restaurant
+PASTA BELLA,Restaurant
+PHO THY THY,Restaurant
 Dropbox,Membership/Dropbox
 Rite Aid,Supermarket/Rite Aid
 Regal,Entertainment/Movie
-GREEN HOUSE,Restaurant
-SOMOONNAN JIB,Restaurant
-CHIANGS GOURMET,Restaurant
-INTERNATIONAL LUCKY,Restaurant
-ANDIAMO,Restaurant
+QIN,Restaurant
+RED ROBIN,Restaurant
+RESTAURANT,Restaurant
+ROCKING WOK,Restaurant
+SANDWICHES,Restaurant
 WA VEHICLE LICENSINGOLYMPIA,Membership/License
 WA DOL,Membership/License
-CRAWFISH KING,Restaurant
-TAI KONG STYLE,Restaurant
-DIN TAI FUNG RESTA,Restaurant
-MASTER CHEF,Restaurant
-DIM SUM FACTORY,Restaurant
-PAGLIACCI PIZZA SAND POIN,Restaurant
-LITTLE TOKYO,Restaurant
-AUNTIE ANNES,Restaurant
-SANDWICHES,Restaurant
-MUNCHEN HAUS,Restaurant
+SEAFOO,Restaurant
+Shanghai shanghai,Restaurant
+SOMOONNAN JIB,Restaurant
 SPACE NEEDLE REST,Restaurant
-HONG KONG BISTRO INC,Restaurant
+Sushi,Restaurant
+TAI KONG STYLE,Restaurant
+Tapioca,Restaurant
+THAN BROTHERS UW,Restaurant
+TOFU HOUSE,Restaurant
+U Don,Restaurant
+University Kitchen,Restaurant
+UW Food,Restaurant
 FUTURE OF FLIGHT AVIATION,Entertainment
 ACME BOWLING,Entertainment/Sports
 PAYLESS SHOES,Shopping/Clothes
 BARNES & NOBLE,Education/Books
+GROUPON INC,Coupon/Groupon
+YELPINC,Coupon/Yelp
+PETCO,Supermarket/Petco
+Yu Shan,Restaurant
+Yummy Bite,Restaurant
+UBER,Transportation/Taxi
+LOT C SEATAC,Travel
+UNITED,Travel
+DELTA AIR,Travel
+DISNEYLAND,Travel
+PRICELINE,Travel
+LAPPERTS ICE CREAM,Restaurant
+Henry's Taiwan UW,Restaurant
+KIKI BAKERY,Restaurant
+MARINEPOLIS,Restaurant
+SANKAKU,Restaurant
+CAR2GO,Transportation/Car2go
+UDEMY,Education/Udemy
+V STAR INC,Restaurant
+IN-N-OUT BURGER,Restaurant
+SUBWAY,Restaurant
+STYLE HOT POT,Restaurant
+PARKSRESERVATIONSWEB,Travel
+parking,Transportation/Parking
+WAL-MART,Supermarket/WAL-MART
+JIFFY LUBE,Car/Maintainance
+HERTZ RENT-A-CAR,Travel
+BROWN BEAR CAR WAS,Car/Wash
+CHILI'S SOUTH INDIAN,Restaurant

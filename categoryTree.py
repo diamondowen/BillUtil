@@ -19,6 +19,7 @@ def updateCategoryTree(node, keyword, categoryList):
                         categoryList[0]), keyword, categoryList[1:])
         node.updateChild(updatedNode)
 
+    node.setIsCategory(True)
     return node
 
 # Get the node of category
@@ -55,24 +56,27 @@ class CategoryTree:
                     print "Warning: duplicated", keyword
 
 
-    def addTransaction(self, categoryPath, expense):
+    def addTransaction(self, categoryPath, expense, date, desc):
         categoryList = re.findall("[^/]+", categoryPath)
-        self.__addTransactionHelper(self.root, categoryList, expense)
+        self.__addTransactionHelper(self.root, categoryList, expense, date, desc)
 
 
-    def printTree(self):
-        self.__preOrderTraverse(self.root)
+    def printTree(self, spendingHighlightTh = 1):
+        self.__preOrderTraverse(self.root, spendingHighlightTh)
 
-    def __addTransactionHelper(self, node, categoryList, expense):
+    def __addTransactionHelper(self, node, categoryList, expense, date, desc):
         node.updateCost(expense)
         if(len(categoryList) > 0):
-            self.__addTransactionHelper(getNodeOnPath(node, [categoryList[0]]), categoryList[1:], expense)
+            self.__addTransactionHelper(getNodeOnPath(node, [categoryList[0]]), categoryList[1:], expense, date, desc)
+        else:
+            node.addChildTrasaction(date, expense, desc)
 
-    def __preOrderTraverse(self, node):
-        if(node.totalCost > 0):
+
+    def __preOrderTraverse(self, node, spendingHighlightTh):
+        if((node.totalCost > 0 and node.isCategory) or node.totalCost >= spendingHighlightTh):
             print "".join(['\t']*node.depth) + str(node)
         for childNode in node.childCategories.values():
-            self.__preOrderTraverse(childNode)
+            self.__preOrderTraverse(childNode, spendingHighlightTh)
 
 
 
@@ -84,14 +88,26 @@ class TreeNode:
         self.keywords = set()
         self.depth = 0  # record the depth to root
         self.totalCost = 0  # record the statistics
+        self.transDate = ""
+        self.isCategory = False
 
     def addParent(self, parentCategoryNode):
         self.parentCategory = parentCategoryNode
+        self.parentCategory.transDate = ""
 
     def addChildCategory(self, childCategoryNode):
         childCategoryNode.addParent(self)
         childCategoryNode.depth = self.depth + 1
+        self.transDate = ""
+        self.isCategory = True
         self.childCategories[childCategoryNode.name] = childCategoryNode
+
+    def addChildTrasaction(self, date, expense, desc):
+        transactionNode = TreeNode(desc)
+        transactionNode.updateCost(expense)
+        transactionNode.updateDate(date)
+        transactionNode.depth = self.depth + 1
+        self.childCategories[date+"#"+desc+"#"+str(expense)] = transactionNode
 
     def addKeyword(self, keyword):
         self.keywords.add(keyword)
@@ -100,10 +116,19 @@ class TreeNode:
         self.childCategories[updatedNode.name] = updatedNode
 
     def __str__(self):
+        if(not self.isCategory):
+            return self.transDate + " " + self.name + " "+str(self.totalCost)
+        else:
             return self.name + " "+str(self.totalCost)
 
     def updateCost(self, cost):
         self.totalCost += cost
+
+    def updateDate(self, date):
+        self.transDate = date
+
+    def setIsCategory(self, isCategory):
+        self.isCategory = isCategory
 
     # Get the child node, if not exist, create new child
     def getChild(self, childName):
