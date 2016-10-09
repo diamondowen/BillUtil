@@ -36,7 +36,7 @@ class BillDataProcessor:
     def processData(self, files):
         conn = sqlite3.connect(self.sqlite_file)
         c = conn.cursor()
-        sql = 'create table if not exists ' + self.trans_table_name + ' (date text, amount real, description text)'
+        sql = 'create table if not exists ' + self.trans_table_name + ' (date text, bank text, card text, amount real, description text)'
         c.execute(sql)
 
         for file in files:
@@ -81,14 +81,14 @@ class BillDataProcessor:
 
 
     def __saveDataToDB(self, c, transData):
-        for date, amount, desc in transData:
+        for date, amount, desc, bankSource, card in transData:
             dateStr = self.__formatDate(date)
-            data = c.execute('SELECT * FROM {table} WHERE date = {dateValue} AND amount = {amountValue} AND description = "{descValue}"'.\
-            format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc))
+            data = c.execute('SELECT * FROM {table} WHERE date = {dateValue} AND bank = "{bankSourceValue}" AND card = "{cardValue}" AND amount = {amountValue} AND description = "{descValue}"'.\
+            format(table=self.trans_table_name, dateValue=dateStr, bankSourceValue=bankSource, amountValue=amount, descValue=desc, cardValue=card))
 
             if(data.fetchone() is None):
-                c.execute("""insert into {table} (date, amount, description) values ({dateValue}, {amountValue}, "{descValue}")""".\
-                format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc))
+                c.execute("""insert into {table} (date, bank, card, amount, description) values ({dateValue}, "{bankSource}", "{cardValue}", {amountValue}, "{descValue}")""".\
+                format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc, bankSource=bankSource, cardValue=card))
 
 
     def __getStatisticsFromData(self):
@@ -97,30 +97,31 @@ class BillDataProcessor:
         totalPayment = 0
 
         unprocessedDesc = []
-        for date, amount, desc in self.transData:
+        for date, amount, desc, bankSource, card in self.transData:
             processedDesc = False
             for keyword, categoryPath in self.spending.keywordCategoryMapping.iteritems():
                 if(re.search(keyword, desc, re.IGNORECASE)):
                     if(amount < 0):
-                        self.spending.addTransaction(categoryPath, -amount, date, desc) # amount is negative, convert it to positive number
+                        self.spending.addTransaction(categoryPath, -amount, date, desc, bankSource, card) # amount is negative, convert it to positive number
                         processedDesc = True
                         break;
                     else:
-                        self.income.addTransaction(categoryPath, amount, date, desc)
+                        self.income.addTransaction(categoryPath, amount, date, desc, bankSource, card)
                         processedDesc = True
                         break;
             if(processedDesc is False):
-                unprocessedDesc.append((date, amount, desc))
+                unprocessedDesc.append((date, amount, desc, bankSource, card))
                 if(amount < 0):
-                    self.spending.addTransaction("Other", -amount, date, desc)
+                    self.spending.addTransaction("Other", -amount, date, desc, bankSource, card)
                 else:
-                    self.income.addTransaction("Other", amount, date, desc)
+                    self.income.addTransaction("Other", amount, date, desc, bankSource, card)
 
 
         if(len(unprocessedDesc) > 0):
             print "Not classified transactions:"
-            for date, amount, desc in unprocessedDesc:
-                print date, ": ", amount , "\t", desc
+            for date, amount, desc, bank, card in unprocessedDesc:
+                label = bank + " " + card + " " + date + " " + ' '.join(desc.split())
+                print  "{0:60} {1}".format(label, str(-amount))
 
         # statistics['Total Payment'] = totalPayment
 
@@ -130,6 +131,8 @@ class BillDataProcessor:
 
     def __processBOAData(self, file):
         print "Process BOA data:", file
+        card = file.split("_")[1]
+
         with open(file, 'r') as csvFile:
             data = csv.DictReader(csvFile, delimiter = ',')
             for row in data:
@@ -137,11 +140,12 @@ class BillDataProcessor:
                 # print month, self.month, year, self.year
                 if(month == self.month and year == self.year and str(row) not in self.trans):
                     self.trans.add(str(row))
-                    self.transData.append((row['Posted Date'], float(row['Amount']), row['Payee']))
+                    self.transData.append((row['Posted Date'], float(row['Amount']), row['Payee'], "BOA", card))
 
 
     def __processChaseData(self, file):
         print "Process Chase data:", file
+        card = file.split("_")[1]
         with open(file, 'r') as csvFile:
             data = csv.DictReader(csvFile, delimiter = ',')
             for row in data:
@@ -149,11 +153,12 @@ class BillDataProcessor:
                 month, year = getMonthAndYearFromDate(row['Trans Date'])
                 if(month == self.month and year == self.year and str(row) not in self.trans):
                     self.trans.add(str(row))
-                    self.transData.append((row['Trans Date'], float(row['Amount']), row['Description']))
+                    self.transData.append((row['Trans Date'], float(row['Amount']), row['Description'], "Chase", card))
 
 
     def __processAmexData(self, file):
         print "Process Amex data:", file
+        card = file.split("_")[1]
         with open(file, 'r') as csvFile:
             data = csv.reader(csvFile, delimiter=',')
             for row in data:
@@ -161,10 +166,10 @@ class BillDataProcessor:
                 if(len(row) > 4):
                     month, year = getMonthAndYearFromDate(row[0])
                     if(month == self.month and year == self.year and str(row) not in self.trans):
-                        self.transData.append((row[0], float(row[2]), row[3]))
+                        self.transData.append((row[0], float(row[2]), row[3], "Amex", card))
                         self.trans.add(str(row))
 
 
     def printAllTransData(self):
-        for date, amount, desc in self.transData:
-            print date, ": ", amount, "\t", desc
+        for date, amount, desc, bank, card in self.transData:
+            print date, ": ", bank, card, amount, "\t", desc

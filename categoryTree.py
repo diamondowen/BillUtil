@@ -56,28 +56,35 @@ class CategoryTree:
                     print "Warning: duplicated", keyword
 
 
-    def addTransaction(self, categoryPath, expense, date, desc):
+    def addTransaction(self, categoryPath, expense, date, desc, bankSource, card):
         categoryList = re.findall("[^/]+", categoryPath)
-        self.__addTransactionHelper(self.root, categoryList, expense, date, desc)
+        self.__addTransactionHelper(self.root, categoryList, expense, date, desc, bankSource, card)
 
 
     def printTree(self, spendingHighlightTh = 1):
         self.__preOrderTraverse(self.root, spendingHighlightTh)
 
-    def __addTransactionHelper(self, node, categoryList, expense, date, desc):
+    def __addTransactionHelper(self, node, categoryList, expense, date, desc, bankSource, card):
         node.updateCost(expense)
         if(len(categoryList) > 0):
-            self.__addTransactionHelper(getNodeOnPath(node, [categoryList[0]]), categoryList[1:], expense, date, desc)
+            self.__addTransactionHelper(getNodeOnPath(node, [categoryList[0]]), categoryList[1:], expense, date, desc, bankSource, card)
         else:
-            node.addChildTrasaction(date, expense, desc)
+            node.addChildTransaction(date, expense, desc, bankSource, card)
 
 
     def __preOrderTraverse(self, node, spendingHighlightTh):
-        if((node.totalCost > 0 and node.isCategory) or node.totalCost >= spendingHighlightTh):
+        if((node.totalCost > 0 and node.isCategory) or (node.transactionInfo != None and node.transactionInfo.amount >= spendingHighlightTh)):
             print "".join(['\t']*node.depth) + str(node)
         for childNode in node.childCategories.values():
             self.__preOrderTraverse(childNode, spendingHighlightTh)
 
+class TransactionInfo:
+    def __init__(self, date, bank, card, amount, description):
+        self.date = date
+        self.bank = bank
+        self.card = card
+        self.amount = amount
+        self.description = description
 
 
 class TreeNode:
@@ -88,26 +95,24 @@ class TreeNode:
         self.keywords = set()
         self.depth = 0  # record the depth to root
         self.totalCost = 0  # record the statistics
-        self.transDate = ""
         self.isCategory = False
+        self.transactionInfo = None
 
     def addParent(self, parentCategoryNode):
         self.parentCategory = parentCategoryNode
-        self.parentCategory.transDate = ""
 
     def addChildCategory(self, childCategoryNode):
         childCategoryNode.addParent(self)
         childCategoryNode.depth = self.depth + 1
-        self.transDate = ""
         self.isCategory = True
+        childCategoryNode.setIsCategory(True)
         self.childCategories[childCategoryNode.name] = childCategoryNode
 
-    def addChildTrasaction(self, date, expense, desc):
+    def addChildTransaction(self, date, expense, desc, bankSource, card):
         transactionNode = TreeNode(desc)
-        transactionNode.updateCost(expense)
-        transactionNode.updateDate(date)
+        transactionNode.transactionInfo = TransactionInfo(date, bankSource, card, expense, desc)
         transactionNode.depth = self.depth + 1
-        self.childCategories[date+"#"+desc+"#"+str(expense)] = transactionNode
+        self.childCategories[date+"#"+bankSource+"#"+card+"#"+desc+"#"+str(expense)] = transactionNode
 
     def addKeyword(self, keyword):
         self.keywords.add(keyword)
@@ -117,7 +122,9 @@ class TreeNode:
 
     def __str__(self):
         if(not self.isCategory):
-            return self.transDate + " " + self.name + " "+str(self.totalCost)
+            label = self.transactionInfo.bank + " " + self.transactionInfo.card + " " + self.transactionInfo.date + " " + \
+            ' '.join(self.transactionInfo.description.split())
+            return "{0:55} {1}".format(label, str(self.transactionInfo.amount))
         else:
             return self.name + " "+str(self.totalCost)
 
