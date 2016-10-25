@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import csv
 import re
+from transaction import TransactionInfo
 
 # Update the tree of category with input keyword and category list
 # Input:
@@ -77,14 +78,6 @@ class CategoryTree:
             print "".join(['\t']*node.depth) + str(node)
         for childNode in node.childCategories.values():
             self.__preOrderTraverse(childNode, spendingHighlightTh)
-
-class TransactionInfo:
-    def __init__(self, date, bank, card, amount, description):
-        self.date = date
-        self.bank = bank
-        self.card = card
-        self.amount = amount
-        self.description = description
 
 
 class TreeNode:

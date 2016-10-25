@@ -13,9 +13,10 @@ def loadData(month, year, highlight_threshold, root_folder = "Data"):
     fileList = glob.glob(root_folder + "/*.csv") + glob.glob(root_folder + "/*.CSV")
 
     # Process each file
-    billProcessor = billProcessorCore.BillDataProcessor(month, year, highlight_threshold)
-    billProcessor.processData(fileList)
-    billProcessor.printStatistics()
+    billProcessor = billProcessorCore.BillDataProcessor()
+    billProcessor.parseData(fileList)
+    billProcessor.loadData(year, month)
+    billProcessor.printStatistics(float(highlight_threshold))
 
     # billProcessor.printAllTransData()
 
@@ -25,7 +26,9 @@ def loadData(month, year, highlight_threshold, root_folder = "Data"):
                 help='Month of interest')
 @click.option('-y','--year',type=click.IntRange(2000, 3000),
                 help='Year of interest')
-@click.option('-t', '--highlight_threshold', type=click.FLOAT, default=100, help='Threshold of highlight spending in result')
+@click.option('-t', '--highlight_threshold', type=click.FLOAT,
+                default=100,
+                help='Threshold of highlight spending in result')
 def processDataOnMonthAndYear(month, year, highlight_threshold):
     print "Month of interst:", month, "/", year
     loadData(month, year, highlight_threshold)

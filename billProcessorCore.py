@@ -3,67 +3,131 @@ from abc import ABCMeta, abstractmethod
 import csv, re
 import categoryTree
 import sqlite3
+import datetime
+from transaction import *
 
 # Get the month from the date string in month/date/year format
-def getMonthAndYearFromDate(date):
+def getMonthDateAndYearFromDate(date):
     # print date
-    date = re.findall('[0-9]+', date)
-    month = int(date[0])
-    year = int(date[2])
+    dateStr = re.findall('[0-9]+', date)
+    month = int(dateStr[0])
+    year = int(dateStr[2])
+    date = int(dateStr[1])
     if(year < 2000):  # for year in short (e.g., 15), convert it to full length (e.g., 2015)
         year += 2000
-    return month, year
+    return month, date, year
+
+
 
 
 class BillDataProcessor:
     # Description here
 
     # Month is an integer in the range of [1, 12]
-    def __init__(self, month, year, spendingHighlightTh):
+    def __init__(self):
         self.transData = []
         self.errMessage = ""
-        self.month = int(month)
-        self.year = int(year)
-        self.spendingHighlightTh = int(spendingHighlightTh)
         self.statistics = {}
-        self.trans = set()  # used to avoid duplicated transactions
         self.spending = categoryTree.CategoryTree()
         self.income = categoryTree.CategoryTree()
         self.sqlite_file = 'transactions_db.sqlite'
         self.trans_table_name = 'transactions'
+        self.processed_data_files_table_name = 'processed_data_files'
+        self.currentDate = datetime.date.today().strftime('%m/%d/%Y')
 
 
-    def processData(self, files):
+    def parseData(self, files):
+
         conn = sqlite3.connect(self.sqlite_file)
         c = conn.cursor()
-        sql = 'create table if not exists ' + self.trans_table_name + ' (date text, bank text, card text, amount real, description text)'
+        sql = 'create table if not exists ' + self.trans_table_name + ' (date text, bank text, card text, amount real, description text);'
         c.execute(sql)
 
+        sql = 'create table if not exists ' + self.processed_data_files_table_name + ' ("file_name" text, "last_parsing_date" text);'
+        c.execute(sql)
+
+        sql = 'select file_name from ' + self.processed_data_files_table_name + ";"
+        parsedFiles = [row[0] for row in c.execute(sql)]
+
+        conn.close()
+
+
         for file in files:
-            if "Chase" in file:
-                self.__processChaseData(file)
-            elif "Amex" in file:
-                self.__processAmexData(file)
-            elif "BOA" in file:
-                self.__processBOAData(file)
-            else:
-                self.errMessage += "Non-recognized data: " + file
-
-        self.statistics = self.__getStatisticsFromData()
-
+            if(file.split('/')[-1] not in parsedFiles):
+                if "Chase" in file:
+                    transFile = self.__parseChaseData(file)
+                    self.__saveDataToDB(transFile)
+                elif "Amex" in file:
+                    transFile = self.__parseAmexData(file)
+                    self.__saveDataToDB(transFile)
+                elif "BOA" in file:
+                    transFile = self.__parseBOAData(file)
+                    self.__saveDataToDB(transFile)
+                else:
+                    self.errMessage += "Non-recognized data: " + file
 
         if(len(self.errMessage) > 0):
             print self.errMessage
 
-        self.__saveDataToDB(c, self.transData)
 
-        conn.commit()
-        conn.close()
+    def loadData(self, year, month):
+        conn = sqlite3.connect(self.sqlite_file)
+        c = conn.cursor()
+        sqlDateFilter = ""
+        if (year is None):
+            sqlDateFilter += "%"
+        else:
+            sqlDateFilter += str(year)
+            if(month is None):
+                sqlDateFilter += "%"
+            else:
 
-    def printStatistics(self):
+                sqlDateFilter += "-" + str(month).zfill(2) + "%"
+
+        data = c.execute("SELECT * FROM " + self.trans_table_name + ' WHERE date like "' + sqlDateFilter + '";')
+        for transData in data:
+            date = transData[0]
+            bank = transData[1]
+            card = transData[2]
+            amount = transData[3]
+            desc = transData[4]
+            self.transData.append((date, float(amount), desc, bank, card))
+
+        conn.close
+
+
+    # def processData(self, files):
+    #     conn = sqlite3.connect(self.sqlite_file)
+    #     c = conn.cursor()
+    #     sql = 'create table if not exists ' + self.trans_table_name + ' (date text, bank text, card text, amount real, description text)'
+    #     c.execute(sql)
+    #
+    #     for file in files:
+    #         if "Chase" in file:
+    #             self.__saveDataToDB(c, transFile)
+    #         elif "Amex" in file:
+    #             self.__processAmexData(file)
+    #         elif "BOA" in file:
+    #             self.__processBOAData(file)
+    #         else:
+    #             self.errMessage += "Non-recognized data: " + file
+    #
+    #     self.statistics = self.__getStatisticsFromData()
+    #
+    #
+    #     if(len(self.errMessage) > 0):
+    #         print self.errMessage
+    #
+    #     self.__saveDataToDB(c, self.transData)
+    #
+    #     conn.commit()
+    #     conn.close()
+
+    def printStatistics(self, highlight_threshold):
+        self.__getStatisticsFromData()
 
         print " ========== Spending: ========== "
-        self.spending.printTree(self.spendingHighlightTh)
+        self.spending.printTree(spendingHighlightTh = 100)
 
         print " ========== Payment and refund: ========== "
         self.income.printTree()
@@ -80,8 +144,18 @@ class BillDataProcessor:
         return '"' + year+"-"+month+"-"+date + '"'
 
 
-    def __saveDataToDB(self, c, transData):
-        for date, amount, desc, bankSource, card in transData:
+    def __saveDataToDB(self, transFile):
+        conn = sqlite3.connect(self.sqlite_file)
+        c = conn.cursor()
+
+        transData = transFile.transactions
+        for transInfo in transData:
+            date = transInfo.date
+            amount = transInfo.amount
+            desc = transInfo.description
+            bankSource = transInfo.bank
+            card = transInfo.card
+
             dateStr = self.__formatDate(date)
             data = c.execute('SELECT * FROM {table} WHERE date = {dateValue} AND bank = "{bankSourceValue}" AND card = "{cardValue}" AND amount = {amountValue} AND description = "{descValue}"'.\
             format(table=self.trans_table_name, dateValue=dateStr, bankSourceValue=bankSource, amountValue=amount, descValue=desc, cardValue=card))
@@ -89,6 +163,11 @@ class BillDataProcessor:
             if(data.fetchone() is None):
                 c.execute("""insert into {table} (date, bank, card, amount, description) values ({dateValue}, "{bankSource}", "{cardValue}", {amountValue}, "{descValue}")""".\
                 format(table=self.trans_table_name, dateValue=dateStr, amountValue=amount, descValue=desc, bankSource=bankSource, cardValue=card))
+
+        c.execute("""insert into {table} ("file_name", "last_parsing_date") values ("{filename}", "{parsingDate}")""".\
+        format(table=self.processed_data_files_table_name, filename=transFile.filename, parsingDate=self.currentDate))
+        conn.commit()
+        conn.close()
 
 
     def __getStatisticsFromData(self):
@@ -127,6 +206,45 @@ class BillDataProcessor:
 
         return statistics
 
+    def __parseBOAData(self, file):
+        print "Process BOA data:", file
+        card = file.split("_")[1]
+        transData = []
+
+        with open(file, 'r') as csvFile:
+            data = csv.DictReader(csvFile, delimiter = ',')
+            for row in data:
+                month, date, year = getMonthDateAndYearFromDate(row['Posted Date'])
+                # print month, self.month, year, self.year
+                transData.append(TransactionInfo(row['Posted Date'], "BOA", card, float(row['Amount']), row['Payee']))
+        return TransactionFile(file, self.currentDate, transData)
+
+    def __parseChaseData(self, file):
+        print "Process Chase data:", file
+        card = file.split("_")[1]
+        transData = []
+
+        with open(file, 'r') as csvFile:
+            data = csv.DictReader(csvFile, delimiter = ',')
+            for row in data:
+                # print row['Type'], row['Trans Date'], row['Description'],row['Amount']
+                month, date, year = getMonthDateAndYearFromDate(row['Trans Date'])
+                transData.append(TransactionInfo(row['Trans Date'], "Chase", card, float(row['Amount']), row['Description']))
+        return TransactionFile(file, self.currentDate, transData)
+
+    def __parseAmexData(self, file):
+        print "Process Amex data:", file
+        card = file.split("_")[1]
+        transData = []
+
+        with open(file, 'r') as csvFile:
+            data = csv.reader(csvFile, delimiter=',')
+            for row in data:
+                # print row
+                if(len(row) > 4):
+                    month, date, year = getMonthDateAndYearFromDate(row[0])
+                    transData.append(TransactionInfo(row[0], "Amex", card, float(row[2]), row[3] ))
+        return TransactionFile(file, self.currentDate, transData)
 
 
     def __processBOAData(self, file):
@@ -136,7 +254,7 @@ class BillDataProcessor:
         with open(file, 'r') as csvFile:
             data = csv.DictReader(csvFile, delimiter = ',')
             for row in data:
-                month, year = getMonthAndYearFromDate(row['Posted Date'])
+                month, date, year = getMonthDateAndYearFromDate(row['Posted Date'])
                 # print month, self.month, year, self.year
                 if(month == self.month and year == self.year and str(row) not in self.trans):
                     self.trans.add(str(row))
@@ -150,7 +268,7 @@ class BillDataProcessor:
             data = csv.DictReader(csvFile, delimiter = ',')
             for row in data:
                 # print row['Type'], row['Trans Date'], row['Description'],row['Amount']
-                month, year = getMonthAndYearFromDate(row['Trans Date'])
+                month, date, year = getMonthDateAndYearFromDate(row['Trans Date'])
                 if(month == self.month and year == self.year and str(row) not in self.trans):
                     self.trans.add(str(row))
                     self.transData.append((row['Trans Date'], float(row['Amount']), row['Description'], "Chase", card))
@@ -164,7 +282,7 @@ class BillDataProcessor:
             for row in data:
                 # print row
                 if(len(row) > 4):
-                    month, year = getMonthAndYearFromDate(row[0])
+                    month, date, year = getMonthDateAndYearFromDate(row[0])
                     if(month == self.month and year == self.year and str(row) not in self.trans):
                         self.transData.append((row[0], float(row[2]), row[3], "Amex", card))
                         self.trans.add(str(row))
