@@ -99,7 +99,7 @@ class BillDataProcessor:
         self.__getStatisticsFromData()
 
         print " ========== Spending: ========== "
-        self.spending.printTree(spendingHighlightTh = 100)
+        self.spending.printTree(spendingHighlightTh = highlight_threshold)
 
         print " ========== Payment and refund: ========== "
         self.income.printTree()
