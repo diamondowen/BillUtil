@@ -7,6 +7,7 @@ NOTE: when changing the "category.csv" file, save it as "windows comma spread sh
 import csv, glob
 import billProcessorCore
 import click
+import parser
 
 def loadData(month, year, highlight_threshold, root_folder = "Data"):
     # Find all .csv files in the data folder
@@ -14,7 +15,7 @@ def loadData(month, year, highlight_threshold, root_folder = "Data"):
 
     # Process each file
     billProcessor = billProcessorCore.BillDataProcessor()
-    billProcessor.parseData(fileList)
+    parser.Parser().parseData(fileList)
     billProcessor.loadData(year, month)
     billProcessor.printStatistics(float(highlight_threshold))
 
