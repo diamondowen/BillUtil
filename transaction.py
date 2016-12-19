@@ -18,3 +18,10 @@ class TransactionInfo:
         self.card = card
         self.amount = amount
         self.description = description
+
+    def getTuple(self):
+        return (self.date, self.bank, self.card, self.amount, self.description)
+
+    def __str__(self):
+        return str("date: " + str(self.date) + " bank: " + str(self.bank) + " card: " + str(self.card) + \
+            " amount: " + str(self.amount) + " description: " + str(self.description))

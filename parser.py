@@ -68,11 +68,7 @@ class Parser:
 
         transData = transFile.transactions
         for transInfo in transData:
-            date = transInfo.date
-            amount = transInfo.amount
-            desc = transInfo.description
-            bankSource = transInfo.bank
-            card = transInfo.card
+            (date, bankSource, card, amount, desc) = transInfo.getTuple()
 
             dateStr = self.__formatDate(date)
             data = c.execute('SELECT * FROM {table} WHERE date = {dateValue} AND bank = "{bankSourceValue}" AND card = "{cardValue}" AND amount = {amountValue} AND description = "{descValue}"'. \
@@ -117,9 +113,16 @@ class Parser:
         with open(file, 'r') as csvFile:
             data = csv.DictReader(csvFile, delimiter = ',')
             for row in data:
-                print row['Type'], row['Trans Date'], row['Description'],row['Amount']
+                # print row['Type'], row['Trans Date'], row['Description'],row['Amount']
                 # month, date, year = getMonthDateAndYearFromDate(row['Trans Date'])
-                transData.append(TransactionInfo(row['Trans Date'], "Chase", card, float(row['Amount']), row['Description']))
+                if('Trans Date' in row):
+                    transDate = row['Trans Date']
+                elif('Posting Date' in row):
+                    transDate = row['Posting Date']
+                else:
+                    raise Exception('Unknown transaction date in Chase data: ' + str(file))
+
+                transData.append(TransactionInfo(transDate, "Chase", card, float(row['Amount']), row['Description']))
         return TransactionFile(file, self.currentDate, transData)
 
     def __parseAmexData(self, file):
