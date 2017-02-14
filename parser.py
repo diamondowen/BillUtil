@@ -56,6 +56,9 @@ class Parser:
                 elif "BOA" in file:
                     transFile = self.__parseBOAData(file)
                     self.__saveDataToDB(transFile)
+                elif "Citi" in file:
+                    transFile = self.__parseCitiData(file)
+                    self.__saveDataToDB(transFile)
                 else:
                     self.errMessage += "Non-recognized data: " + file
 
@@ -104,6 +107,23 @@ class Parser:
                 # print month, self.month, year, self.year
                 transData.append(TransactionInfo(row['Posted Date'], "BOA", card, float(row['Amount']), row['Payee']))
         return TransactionFile(file, self.currentDate, transData)
+
+    def __parseCitiData(self, file):
+        print "Process Citi data:", file
+        card = file.split("_")[1]
+        transData = []
+
+        with open(file, 'r') as csvFile:
+            data = csv.DictReader(csvFile, delimiter = ',')
+            for row in data:
+                month, date, year = getMonthDateAndYearFromDate(row['Date'])
+                if(row['Debit'] == False):
+                    amount = float(row['Credit']) #check plus or minus
+                else:
+                    amount = -float(row['Debit'])
+                transData.append(TransactionInfo(row['Date'], "Citi", card, amount, row['Description']))
+        return TransactionFile(file, self.currentDate, transData)
+
 
     def __parseChaseData(self, file):
         print "Process Chase data:", file

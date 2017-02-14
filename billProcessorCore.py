@@ -111,6 +111,7 @@ class BillDataProcessor:
         for td in spendingTransData:
             (date, bankSource, card, amount, desc) = td.getTuple()
             processedDesc = False
+
             for keyword, categoryPath in self.spending.keywordCategoryMapping.iteritems():
                 if re.search(keyword, desc, re.IGNORECASE):
                     key = self.__getKeyOfTransFlow(incomeTransDataMap, td)
@@ -146,14 +147,14 @@ class BillDataProcessor:
                 self.income.addTransaction("Other", amount, date, desc, bankSource, card)
 
         if len(linkedTransFlow) > 0:
-            print "Linked transaction flow:"
+            print "========== Linked transaction flow: =========="
             for td in linkedTransFlow:
                 (date, bank, card, amount, desc) = td.getTuple()
                 label = bank + " " + card + " " + date + " " + ' '.join(desc.split())
                 print "{0:60} {1}".format(label, str(amount))
 
         if len(unprocessedDesc) > 0:
-            print "Not classified transactions:"
+            print "========== Not classified transactions: =========="
             for date, amount, desc, bank, card in unprocessedDesc:
                 label = bank + " " + card + " " + date + " " + ' '.join(desc.split())
                 print "{0:60} {1}".format(label, str(-amount))
