@@ -17,6 +17,13 @@ def getMonthDateAndYearFromDate(date):
         year += 2000
     return month, date, year
 
+def isNumber(inputStr):
+    try:
+        float(inputStr)
+        return True
+    except ValueError:
+        return False
+
 class Parser:
     __metaclass__ = ABCMeta
 
@@ -114,14 +121,17 @@ class Parser:
         transData = []
 
         with open(file, 'r') as csvFile:
-            data = csv.DictReader(csvFile, delimiter = ',')
+            data = csv.DictReader(csvFile, delimiter = ',', quotechar='"', quoting=csv.QUOTE_ALL, skipinitialspace=True)
             for row in data:
                 month, date, year = getMonthDateAndYearFromDate(row['Date'])
-                if(row['Debit'] == False):
+
+                if(isNumber(row['Credit'])):
                     amount = float(row['Credit']) #check plus or minus
-                else:
+                    transData.append(TransactionInfo(row['Date'], "Citi", card, amount, row['Description']))
+                elif (isNumber(row['Debit'])):
                     amount = -float(row['Debit'])
-                transData.append(TransactionInfo(row['Date'], "Citi", card, amount, row['Description']))
+                    transData.append(TransactionInfo(row['Date'], "Citi", card, amount, row['Description']))
+
         return TransactionFile(file, self.currentDate, transData)
 
 

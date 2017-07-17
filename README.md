@@ -12,3 +12,6 @@ Not supported in the current version
 
 4. Usage:
 In the folder containing "main.py", type: ./main.py -m 1, -y 2016, -v true
+
+
+Need to install Selenium: http://selenium-python.readthedocs.io/installation.html
